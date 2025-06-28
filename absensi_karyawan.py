@@ -38,7 +38,6 @@ df = load_data()
 # -----------------------------
 # Membuat Label Keterlambatan
 # -----------------------------
-# Buat label 'Terlambat' jika masuk setelah jam 8
 df['Status Keterlambatan'] = df['Waktu Masuk (jam)'].apply(lambda x: 'Terlambat' if x > 8 else 'Tidak Terlambat')
 
 # -----------------------------
@@ -67,7 +66,12 @@ X, y, encoders, scaler, fitur_model = preprocess(df)
 # -----------------------------
 # Training Model + SMOTE
 # -----------------------------
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, test_size=0.2, random_state=42)
+
+# Validasi jumlah kelas
+if len(np.unique(y_train)) < 2:
+    st.error("❌ Data latih hanya memiliki satu kelas. SMOTE membutuhkan minimal dua kelas berbeda.")
+    st.stop()
 
 sm = SMOTE(random_state=42)
 X_train_res, y_train_res = sm.fit_resample(X_train, y_train)
